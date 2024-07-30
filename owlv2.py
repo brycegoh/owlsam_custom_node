@@ -14,8 +14,8 @@ class OwlSam:
     def INPUT_TYPES(cls):
         return { 
             "required":{
-                "images": "IMAGE",
-                "texts": "STRING",
+                "images": ("IMAGE",),
+                "texts": ("STRING",),
                 "threshold": ("FLOAT", { "default": 0.2, "min": 0, "max": 1, "step": 0.01 }),
             }
         }
