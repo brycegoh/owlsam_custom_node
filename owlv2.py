@@ -39,7 +39,10 @@ class OwlSam:
 
         # take image from first batch
         image = images[0]
-        image = Image.fromarray(image)
+        # tensor to numpy
+
+        image = 255. * image.cpu().numpy()
+        image = Image.fromarray(np.clip(image, 0, 255).astype(np.uint8))
 
         texts = texts.split(",")
         predictions = detector(
