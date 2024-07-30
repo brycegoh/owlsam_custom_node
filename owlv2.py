@@ -15,7 +15,7 @@ class OwlSam:
         return { 
             "required":{
                 "images": ("IMAGE",),
-                "texts": ("STRING",),
+                "texts": ("STRING", {"default": "window, doorway"}),
                 "threshold": ("FLOAT", { "default": 0.2, "min": 0, "max": 1, "step": 0.01 }),
             }
         }
