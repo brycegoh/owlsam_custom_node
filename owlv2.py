@@ -26,8 +26,7 @@ class OwlSam:
 
     def func(self, images, texts, threshold):
         try:
-            checkpoint = "google/owlv2-base-patch16-ensemble"
-            detector = pipeline(model=checkpoint, task="zero-shot-object-detection", device="cuda", model=folder_paths.get_full_path("owlsam", "owlv2"))
+            detector = pipeline(task="zero-shot-object-detection", device="cuda", model=folder_paths.get_full_path("owlsam", "owlv2"))
             sam_model = SamModel.from_pretrained(folder_paths.get_full_path("owlsam", "sam")).to("cuda")
             sam_processor = SamProcessor.from_pretrained(folder_paths.get_full_path("owlsam", "sam"))
 
