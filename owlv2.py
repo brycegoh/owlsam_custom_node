@@ -81,6 +81,6 @@ class OwlSam:
                 combined_mask = mask
             else:
                 combined_mask = np.logical_or(combined_mask, mask)
-
+        print(combined_mask)
         combined_mask = torch.from_numpy(combined_mask).unsqueeze(0).float()
         return (combined_mask,)
