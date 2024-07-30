@@ -1,11 +1,14 @@
-import folder_paths
 from transformers import pipeline, SamModel, SamProcessor
 import os
 
 def main():    
-  # using python os ensure folder exists if not create
-  owl_path = folder_paths.get_full_path("owlsam", "owlv2")
-  sam_path = folder_paths.get_full_path("owlsam", "sam")
+  comfy_path = os.environ.get('COMFYUI_PATH')
+  if comfy_path is None:
+      comfy_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+  
+  model_path = os.path.abspath(os.path.join(comfy_path, 'models'))
+  owl_path = os.path.join(model_path, 'owlsam', 'owlv2')
+  sam_path = os.path.join(model_path, 'owlsam', 'sam')
 
   if not os.path.exists(owl_path):
     os.makedirs(owl_path)
@@ -19,8 +22,8 @@ def main():
   sam_model = SamModel.from_pretrained("facebook/sam-vit-base").to("cuda")
   sam_processor = SamProcessor.from_pretrained("facebook/sam-vit-base")
 
-  sam_model.save_pretrained(folder_paths.get_full_path("owlsam", "sam"))
-  sam_processor.save_pretrained(folder_paths.get_full_path("owlsam", "sam"))
+  sam_model.save_pretrained(sam_path)
+  sam_processor.save_pretrained(sam_path)
   
 
 if __name__ == "__main__":
