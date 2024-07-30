@@ -39,6 +39,7 @@ class OwlSam:
 
         # take image from first batch
         image = images[0]
+        print(image.shape)
 
         texts = texts.split(",")
         predictions = detector(
@@ -72,7 +73,7 @@ class OwlSam:
             )[0][0][0].numpy()
             mask = mask[np.newaxis, ...]
             result_labels.append((mask, label))
-            print(mask)
+
             if combined_mask is None:
                 combined_mask = mask
             else:
