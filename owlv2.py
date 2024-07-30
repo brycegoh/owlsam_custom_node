@@ -39,7 +39,7 @@ class OwlSam:
 
         # take image from first batch
         image = images[0]
-        print(image.shape)
+        image = Image.fromarray(image)
 
         texts = texts.split(",")
         predictions = detector(
