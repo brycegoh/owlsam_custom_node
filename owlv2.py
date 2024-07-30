@@ -3,8 +3,8 @@ from io import BytesIO
 from PIL import Image
 import numpy as np
 import torch
-import folder_paths
 from transformers import pipeline, SamModel, SamProcessor
+import os
 
 
 class OwlSam:
@@ -26,9 +26,17 @@ class OwlSam:
 
     def func(self, images, texts, threshold):
         try:
-            detector = pipeline(task="zero-shot-object-detection", device="cuda", model=folder_paths.get_full_path("owlsam", "owlv2"))
-            sam_model = SamModel.from_pretrained(folder_paths.get_full_path("owlsam", "sam")).to("cuda")
-            sam_processor = SamProcessor.from_pretrained(folder_paths.get_full_path("owlsam", "sam"))
+            comfy_path = os.environ.get('COMFYUI_PATH')
+            if comfy_path is None:
+                comfy_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+            
+            model_path = os.path.abspath(os.path.join(comfy_path, 'models'))
+            owl_path = os.path.join(model_path, 'owlsam', 'owlv2')
+            sam_path = os.path.join(model_path, 'owlsam', 'sam')
+
+            detector = pipeline(task="zero-shot-object-detection", device="cuda", model=owl_path)
+            sam_model = SamModel.from_pretrained(sam_path).to("cuda")
+            sam_processor = SamProcessor.from_pretrained(sam_path)
 
             # take image from first batch
             image = images[0]
