@@ -30,12 +30,10 @@ class OwlSam:
             comfy_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
         
         model_path = os.path.abspath(os.path.join(comfy_path, 'models'))
-        owl_path = os.path.join(model_path, 'owlsam')
-        os.environ["HF_HOME"] = owl_path
 
-        detector = pipeline(model="google/owlv2-base-patch16-ensemble", task="zero-shot-object-detection", device="cuda", subfolder="owlv2")
-        sam_model = SamModel.from_pretrained("facebook/sam-vit-base", subfolder="sam").to("cuda")
-        sam_processor = SamProcessor.from_pretrained("facebook/sam-vit-base", subfolder="sam")
+        detector = pipeline(model="google/owlv2-base-patch16-ensemble", task="zero-shot-object-detection", device="cuda", cache_dir=model_path)
+        sam_model = SamModel.from_pretrained("facebook/sam-vit-base", cache_dir=model_path).to("cuda")
+        sam_processor = SamProcessor.from_pretrained("facebook/sam-vit-base", cache_dir=model_path)
 
         # take image from first batch
         image = images[0]
