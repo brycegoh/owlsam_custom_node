@@ -14,11 +14,11 @@ def main():
     os.makedirs(owl_path)
 
   checkpoint = "google/owlv2-base-patch16-ensemble"
-  detector = pipeline(model=checkpoint, task="zero-shot-object-detection", device="cuda")
+  detector = pipeline(model=checkpoint, task="zero-shot-object-detection", subfolder="owlv2")
   detector.save_pretrained(owl_path)
 
-  SamModel.from_pretrained("facebook/sam-vit-base")
-  SamProcessor.from_pretrained("facebook/sam-vit-base")
+  SamModel.from_pretrained("facebook/sam-vit-base", subfolder="sam")
+  SamProcessor.from_pretrained("facebook/sam-vit-base", subfolder="sam")
 
 if __name__ == "__main__":
     main()
