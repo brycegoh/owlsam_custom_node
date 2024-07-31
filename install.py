@@ -11,11 +11,11 @@ def main():
   os.environ["HF_HOME"] = model_path
   if not os.path.exists(model_path):
     os.makedirs(model_path)
-
+  print(f"Set HF_HOME to {model_path}")
   SamModel.from_pretrained("facebook/sam-vit-base")
   SamProcessor.from_pretrained("facebook/sam-vit-base")
-  processor = AutoProcessor.from_pretrained("google/owlv2-base-patch16-ensemble")
-  model = Owlv2ForObjectDetection.from_pretrained("google/owlv2-base-patch16-ensemble")
+  AutoProcessor.from_pretrained("google/owlv2-base-patch16-ensemble")
+  Owlv2ForObjectDetection.from_pretrained("google/owlv2-base-patch16-ensemble")
 
 if __name__ == "__main__":
     main()
