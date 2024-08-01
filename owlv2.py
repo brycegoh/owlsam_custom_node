@@ -50,7 +50,9 @@ class OwlSam:
         )
 
         result_labels = []
-        combined_mask = None
+        height, width = image.shape[:2]
+
+        combined_mask = np.zeros((height, width), dtype=image.dtype)
         for pred in predictions:
             box = pred["box"]
             score = pred["score"]
@@ -79,5 +81,6 @@ class OwlSam:
                 combined_mask = mask
             else:
                 combined_mask = np.logical_or(combined_mask, mask)
+
         combined_mask = torch.from_numpy(combined_mask).unsqueeze(0).float()
         return (combined_mask,)
