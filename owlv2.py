@@ -50,7 +50,7 @@ class OwlSam:
         )
 
         result_labels = []
-        height, width = image.shape[:2]
+        width, height = image.size
 
         combined_mask = np.zeros((height, width), dtype=image.dtype)
         for pred in predictions:
