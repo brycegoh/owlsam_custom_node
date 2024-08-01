@@ -52,7 +52,7 @@ class OwlSam:
         result_labels = []
         width, height = image.size
 
-        combined_mask = np.zeros((height, width), dtype=image.dtype)
+        combined_mask = np.zeros((height, width))
         for pred in predictions:
             box = pred["box"]
             score = pred["score"]
