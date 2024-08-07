@@ -16,7 +16,6 @@ class OwlSam:
             "required":{
                 "images": ("IMAGE",),
                 "texts": ("STRING", {"default": "window, doorway"}),
-                "to_mask_fully": ("STRING", {"default": "doorway"}),
                 "threshold": ("FLOAT", { "default": 0.2, "min": 0, "max": 1, "step": 0.01 }),
             }
         }
@@ -25,8 +24,7 @@ class OwlSam:
     RETURN_NAMES = ("mask",)
     FUNCTION = "func"
 
-    def func(self, images, texts, to_mask_fully, threshold):
-        to_mask_fully = [x.strip() for x in to_mask_fully.split(",")]
+    def func(self, images, texts, threshold):
         comfy_path = os.environ.get('COMFYUI_PATH')
         if comfy_path is None:
             comfy_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -62,28 +60,22 @@ class OwlSam:
             box = [round(pred["box"]["xmin"], 2), round(pred["box"]["ymin"], 2), 
                 round(pred["box"]["xmax"], 2), round(pred["box"]["ymax"], 2)]
 
-            if label in to_mask_fully:
-                xmin, ymin, xmax, ymax = int(box[0]), int(box[1]), int(box[2]), int(box[3])
-                mask = np.zeros((height, width))
-                mask[ymin:ymax, xmin:xmax] = 1
-                result_labels.append((mask, label))
-            else:
-                inputs = sam_processor(
-                        image,
-                        input_boxes=[[[box]]],
-                        return_tensors="pt"
-                    ).to("cuda")
+            inputs = sam_processor(
+                    image,
+                    input_boxes=[[[box]]],
+                    return_tensors="pt"
+                ).to("cuda")
 
-                with torch.no_grad():
-                    outputs = sam_model(**inputs)
+            with torch.no_grad():
+                outputs = sam_model(**inputs)
 
-                mask = sam_processor.image_processor.post_process_masks(
-                    outputs.pred_masks.cpu(),
-                    inputs["original_sizes"].cpu(),
-                    inputs["reshaped_input_sizes"].cpu()
-                )[0][0][0].numpy()
-                mask = mask[np.newaxis, ...]
-                result_labels.append((mask, label))
+            mask = sam_processor.image_processor.post_process_masks(
+                outputs.pred_masks.cpu(),
+                inputs["original_sizes"].cpu(),
+                inputs["reshaped_input_sizes"].cpu()
+            )[0][0][0].numpy()
+            mask = mask[np.newaxis, ...]
+            result_labels.append((mask, label))
 
             if combined_mask is None:
                 combined_mask = mask
