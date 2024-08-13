@@ -5,6 +5,7 @@ import os
 
 def main():    
   os.system("pip install huggingface_hub")
+  os.system("pip install samv2")
   from huggingface_hub import hf_hub_download
   # set HF_HOME env var
   comfy_path = os.environ.get('COMFYUI_PATH')
@@ -15,6 +16,7 @@ def main():
 
   sam2_path = os.path.abspath(os.path.join(model_path, 'sam2'))
   hf_hub_download(repo_id = "facebook/sam2-hiera-large", filename="sam2_hiera_large.pt", local_dir =sam2_path)
+
 
   os.environ["HF_HOME"] = model_path
   if not os.path.exists(model_path):
