@@ -5,6 +5,8 @@ import numpy as np
 import torch
 from transformers import pipeline, SamModel, SamProcessor
 import os
+from sam2.build_sam import build_sam2
+from sam2.sam2_image_predictor import SAM2ImagePredictor
 
 
 class OwlSam:
@@ -74,6 +76,80 @@ class OwlSam:
                 inputs["original_sizes"].cpu(),
                 inputs["reshaped_input_sizes"].cpu()
             )[0][0][0].numpy()
+            mask = mask[np.newaxis, ...]
+            result_labels.append((mask, label))
+
+            if combined_mask is None:
+                combined_mask = mask
+            else:
+                combined_mask = np.logical_or(combined_mask, mask)
+
+        combined_mask = torch.from_numpy(combined_mask).unsqueeze(0).float()
+        return (combined_mask,)
+
+class OwlSamV2:
+    CATEGORY = "owlv2"
+
+    @classmethod    
+    def INPUT_TYPES(cls):
+        return { 
+            "required":{
+                "images": ("IMAGE",),
+                "texts": ("STRING", {"default": "window, doorway"}),
+                "threshold": ("FLOAT", { "default": 0.2, "min": 0, "max": 1, "step": 0.01 }),
+            }
+        }
+
+    RETURN_TYPES = ("MASK",)
+    RETURN_NAMES = ("mask",)
+    FUNCTION = "func"
+
+    def func(self, images, texts, threshold):
+        comfy_path = os.environ.get('COMFYUI_PATH')
+        if comfy_path is None:
+            comfy_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+        
+        model_path = os.path.abspath(os.path.join(comfy_path, 'models'))
+
+
+        detector = pipeline(model="google/owlv2-base-patch16-ensemble", task="zero-shot-object-detection", device="cuda", cache_dir=model_path)
+
+        sam2_path = os.path.abspath(os.path.join(model_path, 'sam2'))
+        CHECKPOINT = f"{sam2_path}/sam2_hiera_large.pt"
+        CONFIG = f"{sam2_path}/sam2_hiera_l.yaml"
+
+        sam2_model = build_sam2(CONFIG, CHECKPOINT, device="cuda", apply_postprocessing=False)
+        predictor = SAM2ImagePredictor(sam2_model)
+
+        # take image from first batch
+        image = images[0]
+        # tensor to numpy
+
+        image = 255. * image.cpu().numpy()
+        image = Image.fromarray(np.clip(image, 0, 255).astype(np.uint8))
+
+        texts = texts.split(",")
+        predictions = detector(
+            image,
+            candidate_labels=texts,
+            threshold=threshold
+        )
+
+        result_labels = []
+        width, height = image.size
+
+        combined_mask = np.zeros((height, width))
+        for pred in predictions:
+            box = pred["box"]
+            score = pred["score"]
+            label = pred["label"]
+            box = [round(pred["box"]["xmin"], 2), round(pred["box"]["ymin"], 2), 
+                round(pred["box"]["xmax"], 2), round(pred["box"]["ymax"], 2)]
+
+            predictor.set_image(image)
+            with torch.no_grad():
+                mask, scores, logits = predictor.predict(box=box,
+            multimask_output=False)
             mask = mask[np.newaxis, ...]
             result_labels.append((mask, label))
 
