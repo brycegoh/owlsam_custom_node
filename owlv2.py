@@ -116,7 +116,7 @@ class OwlSamV2:
 
         sam2_path = os.path.abspath(os.path.join(model_path, 'sam2'))
         CHECKPOINT = f"{sam2_path}/sam2_hiera_large.pt"
-        CONFIG = f"{sam2_path}/sam2_hiera_l.yaml"
+        CONFIG = f"sam2_hiera_l.yaml"
 
         sam2_model = build_sam2(CONFIG, CHECKPOINT, device="cuda", apply_postprocessing=False)
         predictor = SAM2ImagePredictor(sam2_model)
