@@ -5,8 +5,9 @@ import os
 
 def main():    
   os.system("pip install huggingface_hub")
+  os.system("pip install samv2")
   os.system("git clone https://github.com/facebookresearch/segment-anything-2.git")
-  os.system('cd segment-anything-2 & pip install -e ".[demo]" & python setup.py install')
+  os.system('cd segment-anything-2 && pip install -e ".[demo]" && python setup.py install')
 
   from huggingface_hub import hf_hub_download
   # set HF_HOME env var
